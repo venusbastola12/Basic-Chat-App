@@ -8,4 +8,4 @@ class ApiError extends Error {
     Error.captureStackTrace(this, this.constructor);
   }
 }
-module.exorts = ApiError;
+module.exports = ApiError;
