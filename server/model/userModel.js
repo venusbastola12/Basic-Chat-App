@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Validator = require("validator");
+const bcrypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -29,7 +30,7 @@ const userSchema = new mongoose.Schema({
       validator: function (value) {
         return value === this.password;
       },
-      message: "password confirm should be same as ",
+      message: "password confirm should be same as above given password ",
     },
     min: 8,
     max: 25,
@@ -37,6 +38,13 @@ const userSchema = new mongoose.Schema({
   passwordChangedAt: Date,
   resetPasswordToken: String,
   resetPasswordExpires: Date,
+});
+
+//middlewares..
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  this.password = await bcrypt.hash(this.password, 12);
+  this.confirmPassword = undefined;
 });
 
 const User = mongoose.model("User", userSchema);
