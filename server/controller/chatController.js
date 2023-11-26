@@ -19,3 +19,9 @@ exports.deleteChat = (req, res) => {
     data: {},
   });
 };
+exports.getOneChat = (req, res) => {
+  res.status(200).json({
+    status: "success",
+    message: "it is not implemented yet",
+  });
+};

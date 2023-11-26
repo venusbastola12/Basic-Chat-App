@@ -12,7 +12,7 @@ exports.signup = catchAsync(async (req, res, next) => {
 
   const newUser = await User.create(req.body);
   console.log(newUser);
-  const token = jwt.sign({ id: newUser._id }, process.env.SECRET_KEY, {
+  const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET_KEY, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
   res.status(200).json({
@@ -34,14 +34,15 @@ exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password)
     return next(new ApiError("enter your password or email", 400));
-  const exist = await User.findOne({ email });
+  const exist = await User.findOne({ email }).select("+password");
+  console.log(exist);
   const isCorrect = await exist.checkPassword(password, exist.password);
   if (!exist || !isCorrect)
     return next(
       new ApiError("No user with such email address or incorrect password", 400)
     );
 
-  const token = jwt.sign({ id: exist._id }, process.env.SECRET_KEY, {
+  const token = jwt.sign({ id: exist._id }, process.env.JWT_SECRET_KEY, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
@@ -50,12 +51,22 @@ exports.login = catchAsync(async (req, res, next) => {
     token,
   });
 });
-exports.getAllUsers = (req, res) => {
+exports.getAllUsers = catchAsync(async (req, res, next) => {
+  // res.status(200).json({
+  //   status: "success",
+  //   message: "no data added yet to this route",
+  // });
+  const users = await User.find();
+  if (!users) return next(new ApiError("no user found", 400));
   res.status(200).json({
     status: "success",
-    message: "no data added yet to this route",
+    count: users.length,
+    data: {
+      users,
+    },
   });
-};
+});
+
 exports.getOneUser = (req, res) => {
   res.status(200).json({
     status: "success",

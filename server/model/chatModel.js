@@ -8,6 +8,10 @@ const chatSchema = new mongoose.Schema({
   NewMessageCount: {
     type: Number,
   },
+  messages: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Message",
+  },
   ActiveStatus: {
     type: Boolean,
     default: false,
